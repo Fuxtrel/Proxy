@@ -25,5 +25,5 @@ int main(int argc, char *argv[])
     auto *server = new EchoServer(port, debug);
     QObject::connect(server, &EchoServer::closed, &a, &QCoreApplication::quit);
 
-    return a.exec();
+    return QCoreApplication::exec();
 }

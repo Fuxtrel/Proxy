@@ -16,11 +16,13 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onConnected();
     void onTextMessageReceived(QString message);
+    void textMessageReceived(QString message);
 
 private:
     QWebSocket m_webSocket;
     QUrl m_url;
     bool m_debug;
+    QString UID;
 };
 
 

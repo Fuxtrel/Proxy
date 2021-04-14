@@ -2,6 +2,10 @@
 #include "QtWebSockets/qwebsocketserver.h"
 #include "QtWebSockets/qwebsocket.h"
 #include <QtCore/QDebug>
+#include <QTextStream>
+
+QTextStream cout(stdout);
+QTextStream cin(stdin);
 
 QT_USE_NAMESPACE
 
@@ -34,7 +38,7 @@ void EchoServer::onNewConnection()
     QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
 
     connect(pSocket, &QWebSocket::textMessageReceived, this, &EchoServer::processTextMessage);
-    connect(pSocket, &QWebSocket::binaryMessageReceived, this, &EchoServer::processBinaryMessage);
+    //connect(pSocket, &QWebSocket::binaryMessageReceived, this, &EchoServer::processBinaryMessage);
     connect(pSocket, &QWebSocket::disconnected, this, &EchoServer::socketDisconnected);
 
     m_clients << pSocket;
@@ -48,7 +52,16 @@ void EchoServer::processTextMessage(QString message)
     if (m_debug)
         qDebug() << "Message received:" << message;
     if (pClient) {
-        pClient->sendTextMessage(message);
+        if(message == "login"){
+            pClient->sendTextMessage("login_ok");
+            cout << "login_ok" << Qt::endl;
+        }else if (message == "password"){
+            pClient->sendTextMessage("password_ok");
+            cout << "password_ok" << Qt::endl;
+        }else if(message == "getUID"){
+            cout << "Request UID" << Qt::endl;
+            pClient->sendTextMessage("UIDlogEmail");
+        }
     }
 }
 //! [processTextMessage]
