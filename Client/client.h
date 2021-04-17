@@ -19,6 +19,7 @@ private Q_SLOTS:
     void onConnected();
 
     void onTextMessageReceived(QString message);
+    //void processTextMessage(QString message);
 
     void textMessageReceived(QString message);
 

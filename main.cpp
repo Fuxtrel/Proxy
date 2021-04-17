@@ -11,6 +11,6 @@ int main(int argc, char *argv[])
     QString ip = argv[1];
     QString port = argv[2];
 
-    Server server(quint16());
+    Server server(quint16(4040));
     return QCoreApplication::exec();
 }
