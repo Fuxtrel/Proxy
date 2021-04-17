@@ -3,25 +3,28 @@
 
 #include <QtCore/QObject>
 #include <QtWebSockets/QWebSocket>
+#include <QTextStream>
 
-class EchoClient : public QObject
-{
+class Client : public QObject {
 Q_OBJECT
 public:
-    explicit EchoClient(const QUrl &url, bool debug = false, QObject *parent = nullptr);
+    explicit Client(const QUrl &url);
 
 Q_SIGNALS:
+
     void closed();
 
 private Q_SLOTS:
+
     void onConnected();
+
     void onTextMessageReceived(QString message);
+
     void textMessageReceived(QString message);
 
 private:
-    QWebSocket m_webSocket;
-    QUrl m_url;
-    bool m_debug;
+    QWebSocket webSocket_;
+    QUrl url_;
     QString UID;
 };
 

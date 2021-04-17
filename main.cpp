@@ -1,29 +1,16 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QCommandLineOption>
+#include <cstring>
+#include <string>
 #include "proxy.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+    QString ip = argv[1];
+    QString port = argv[2];
 
-    QCommandLineParser parser;
-    parser.setApplicationDescription("QtWebSockets example: echoserver");
-    parser.addHelpOption();
-
-    QCommandLineOption dbgOption(QStringList() << "d" << "debug",
-                                 QCoreApplication::translate("main", "Debug output [default: off]."));
-    parser.addOption(dbgOption);
-    QCommandLineOption portOption(QStringList() << "p" << "port",
-                                  QCoreApplication::translate("main", "Port for echoserver [default: 4040]."),
-                                  QCoreApplication::translate("main", "port"), QLatin1String("4040"));
-    parser.addOption(portOption);
-    parser.process(a);
-    bool debug = parser.isSet(dbgOption);
-    int port = parser.value(portOption).toInt();
-
-    auto *server = new EchoServer(port, debug);
-    QObject::connect(server, &EchoServer::closed, &a, &QCoreApplication::quit);
-
+    Server server(quint16());
     return QCoreApplication::exec();
 }

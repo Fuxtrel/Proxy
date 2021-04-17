@@ -8,12 +8,12 @@
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
 
-class EchoServer : public QObject
+class Server : public QObject
 {
 Q_OBJECT
 public:
-    explicit EchoServer(quint16 port, bool debug = false, QObject *parent = nullptr);
-    ~EchoServer();
+    explicit Server(quint16 port);
+    ~Server();
 
 Q_SIGNALS:
     void closed();
