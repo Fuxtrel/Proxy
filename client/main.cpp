@@ -11,7 +11,6 @@ int main(int argc, char *argv[]) {
     QString ip = argv[1];
     QString port = argv[2];
     QString url = "ws://" + ip + ":" + port;
-    cout << "Url, witch will connect client -- " << url << Qt::endl;
     Client client((QUrl(url)));
     QObject::connect(&client, &Client::closed, &a, &QCoreApplication::quit);
 

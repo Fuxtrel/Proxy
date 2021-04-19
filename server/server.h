@@ -1,9 +1,13 @@
-#ifndef PROXY_PROXY_H
-#define PROXY_PROXY_H
+#ifndef PROXY_Server_H
+#define PROXY_Server_H
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QByteArray>
+#include "QtWebSockets/qwebsocketserver.h"
+#include "QtWebSockets/qwebsocket.h"
+#include <QtCore/QDebug>
+#include <QTextStream>
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -23,12 +27,15 @@ private Q_SLOTS:
     void processTextMessage(QString message);
     void processBinaryMessage(QByteArray message);
     void socketDisconnected();
+    void onConnected();
+    void textMessageReceived(QString message);
+    void onTextMessageReceived(QString message);
 
 private:
     QWebSocketServer *m_pWebSocketServer;
-    QList<QWebSocket *> m_clients;
+    QWebSocket* m_Server;
     bool m_debug;
+    QList<QWebSocket *> clients;
 };
 
-
-#endif //PROXY_PROXY_H
+#endif //PROXY_Server_H

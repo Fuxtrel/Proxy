@@ -1,4 +1,5 @@
-project(ws_client)
+cmake_minimum_required(VERSION 3.19)
+project(proxy)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_PREFIX_PATH "/home/alex/Qt/5.15.2/gcc_64")
@@ -10,7 +11,7 @@ set(QT_VERSION 5)
 set(REQUIRED_LIBS Core WebSockets)
 set(REQUIRED_LIBS_QUALIFIED Qt5::Core Qt5::WebSockets)
 
-add_executable(${PROJECT_NAME} main.cpp  websocketclient.h main.cpp  websocketclient.h)
+add_executable(${PROJECT_NAME} main.cpp proxy.cpp proxy.h)
 
 if (NOT CMAKE_PREFIX_PATH)
     message(WARNING "CMAKE_PREFIX_PATH is not defined, you may need to set it "
