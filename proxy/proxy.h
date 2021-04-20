@@ -10,6 +10,7 @@
 #include <QTextStream>
 #include <QRandomGenerator>
 #include <string>
+#include <cstdlib>
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -29,10 +30,8 @@ private Q_SLOTS:
     void processTextMessage(QString message);
     void processBinaryMessage(QByteArray message);
     void socketDisconnected();
-    void onConnected();
-    void textMessageReceived(QString message);
     void onTextMessageReceived(QString message);
-    QString generateToken();
+    static QString generateToken();
 
 
 private:

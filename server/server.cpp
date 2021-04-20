@@ -9,7 +9,7 @@ QT_USE_NAMESPACE
 Server::Server(quint16 port) :
         m_pWebSocketServer(new QWebSocketServer(QStringLiteral("Server"),
                                                 QWebSocketServer::NonSecureMode, this)) {
-    if (m_pWebSocketServer->listen(QHostAddress("localhost"), port)) {
+    if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
         qDebug() << "server listening on port" << port;
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
                 this, &Server::onNewConnection);

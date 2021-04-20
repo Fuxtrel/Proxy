@@ -35,12 +35,7 @@ void Client::textMessageReceived(QString message) {
         webSocket_.sendTextMessage(QStringLiteral("getUID"));
     } else if ((message[0] == "t") && (message[1] == "o") && (message[2] == "k") && (message[3] == "e") && (message[4] == "n")) {
         cout << message << Qt::endl;
-        webSocket_.sendTextMessage("gotUID");
-    }else if(message == "KAL"){
-        qDebug() << "KAL_OK\n";
-        webSocket_.sendTextMessage("KAL_OK");
     }
-
 
 }
 //! [onTextMessageReceived]

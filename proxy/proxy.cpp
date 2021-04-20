@@ -34,24 +34,28 @@ void Proxy::onNewConnection() {
     connect(pSocket, &QWebSocket::disconnected, this, &Proxy::socketDisconnected);
 
     clients << pSocket;
+    cout << "Clients count: " <<clients.size() << "\n";
 }
 //! [onNewConnection]
 
 //! [processTextMessage]
 void Proxy::processTextMessage(QString message) {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
-        qDebug() << "Message received:" << message;
     if (pClient) {
         if (message[6] == "a" && message[7] == "u" && message[8] == "t" && message[9] == "h") {
             cout << "auth send to server" << Qt::endl;
             pClient->sendTextMessage("auth_ok");
         } else if (message == "getUID") {
-            cout << "token:\n" + generateToken() + "\nUID:\nUID_client_1" << Qt::endl;
-            cout << pClient->sendTextMessage("token: " + generateToken() + "\nUID: UID_client_1");
+            cout << "token: " + generateToken() + "\nUID: UID_client_" + QString::number(clients.size()) << Qt::endl;
+            cout << pClient->sendTextMessage("token: " + generateToken() + "\nUID: UID_client_" + QString::number(clients.size()));
+        } else if(message == "gotUID") {
+            pClient->sendTextMessage("KAL");
+        } else if(message == "KAL_OK"){
+            qDebug() << "KAL_OK";
         }
     }
-}
+
+    }
 //! [processTextMessage]
 
 //! [processBinaryMessage]
@@ -76,18 +80,6 @@ void Proxy::socketDisconnected() {
     }
 }
 
-void Proxy::onConnected() {
-    connect(m_Server, &QWebSocket::textMessageReceived, this, &Proxy::textMessageReceived);
-}
-
-void Proxy::textMessageReceived(QString message) {
-    if (message == "login_ok") {
-        cout << "login_ok" << Qt::endl;
-        m_Server->sendTextMessage(QStringLiteral("password"));
-    } else if (message == "password_ok") {
-
-    }
-}
 
 void Proxy::onTextMessageReceived(QString message) {
 
