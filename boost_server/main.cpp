@@ -73,7 +73,13 @@ int main(int argc, char *argv[]) {
         net::io_context ioc{1};
 
         // The acceptor receives incoming connections
-        tcp::acceptor acceptor{ioc, {address, port}};
+        //tcp::acceptor acceptor{ioc, {address, port}};
+        tcp::acceptor acceptor{ioc};
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
+        acceptor.open(endpoint.protocol());
+        acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+        acceptor.bind(endpoint);
+        acceptor.listen();
         while (true) {
             // This will receive the new connection
             tcp::socket socket{ioc};

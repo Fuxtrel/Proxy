@@ -10,10 +10,11 @@ QT_USE_NAMESPACE
 Proxy::Proxy(quint16 port) :
         m_pWebSocketServer(new QWebSocketServer(QStringLiteral("Server"),
                                                 QWebSocketServer::NonSecureMode, this)) {
-    if (m_pWebSocketServer->listen(QHostAddress("localhost"), port)) {
+    ////////////////////////////////////////////////////исправил приём адресом ::Any
+    ////////////////////////////////////////////////////QHostAddress("localhost")
+    if (m_pWebSocketServer->listen(QHostAddress::AnyIPv4, port)) {
         qDebug() << "server listening on port" << port;
-        connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
-                this, &Proxy::onNewConnection);
+        connect(m_pWebSocketServer, &QWebSocketServer::newConnection,this, &Proxy::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &Proxy::closed);
     }
     //m_Server->open(QUrl(QStringLiteral("ws://0.0.0.0:4040")));

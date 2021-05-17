@@ -11,6 +11,7 @@ Client::Client(const QUrl &url) : url_(url) {
     connect(&webSocket_, &QWebSocket::connected, this, &Client::onConnected);
     connect(&webSocket_, &QWebSocket::disconnected, this, &Client::closed);
     qDebug() << url;
+    qDebug() << url_;
     webSocket_.open(url_);
 }
 //! [constructor]
@@ -32,6 +33,8 @@ void Client::onTextMessageReceived(QString message) {
 void Client::textMessageReceived(QString message) {
     if (message == "auth_ok") {
         cout << "auth_ok" << Qt::endl;
+        QString DEBUG = cin.readLine();
+        qDebug() << DEBUG;
         webSocket_.sendTextMessage(QStringLiteral("getUID"));
     } else if ((message[0] == "t") && (message[1] == "o") && (message[2] == "k") && (message[3] == "e") && (message[4] == "n")) {
         cout << message << Qt::endl;
