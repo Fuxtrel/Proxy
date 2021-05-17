@@ -12,7 +12,7 @@ Proxy::Proxy(quint16 port) :
                                                 QWebSocketServer::NonSecureMode, this)) {
     ////////////////////////////////////////////////////исправил приём адресом ::Any
     ////////////////////////////////////////////////////QHostAddress("localhost")
-    if (m_pWebSocketServer->listen(QHostAddress::AnyIPv4, port)) {
+    if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
         qDebug() << "server listening on port" << port;
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection,this, &Proxy::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &Proxy::closed);
