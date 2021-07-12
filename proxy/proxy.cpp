@@ -1,8 +1,7 @@
 #include "proxy.h"
 #include <QHostAddress>
-
-QTextStream cout(stdout);
-QTextStream cin(stdin);
+#include <fstream>
+#include <QFile>
 
 QT_USE_NAMESPACE
 
@@ -10,18 +9,21 @@ QT_USE_NAMESPACE
 Proxy::Proxy(quint16 port) :
         m_pWebSocketServer(new QWebSocketServer(QStringLiteral("Server"),
                                                 QWebSocketServer::NonSecureMode, this)) {
-
     if (m_pWebSocketServer->listen(QHostAddress("0.0.0.0"), port)) {
-        if(m_pWebSocketServer->isListening()) {
+        if (m_pWebSocketServer->isListening()) {
             qDebug() << "server listening on port" << port;
-        }else{
+        } else {
             qDebug() << "server can not listen port" << port;
         }
-        connect(m_pWebSocketServer, &QWebSocketServer::newConnection,this, &Proxy::onNewConnection);
+        connect(m_pWebSocketServer, &QWebSocketServer::newConnection, this, &Proxy::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &Proxy::closed);
+    }
+    for (int i = 0; i < 3; i++) {
+        state.push_back(0);
     }
     //m_Server->open(QUrl(QStringLiteral("ws://0.0.0.0:4040")));
     //connect(m_Server, &QWebSocket::connected, this, &Proxy::onConnected);
+
 }
 //! [constructor]
 
@@ -33,42 +35,43 @@ Proxy::~Proxy() {
 //! [onNewConnection]
 void Proxy::onNewConnection() {
     QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
-    connect(pSocket, &QWebSocket::textMessageReceived, this, &Proxy::processTextMessage);
-    //connect(pSocket, &QWebSocket::binaryMessageReceived, this, &Server::processBinaryMessage);
+    connect(pSocket, &QWebSocket::textMessageReceived, this, &Proxy::onTextMessageReceived);
+    connect(pSocket, &QWebSocket::binaryMessageReceived, this, &Proxy::processBinaryMessage);
     connect(pSocket, &QWebSocket::disconnected, this, &Proxy::socketDisconnected);
-
     clients << pSocket;
-    cout << "Clients count: " <<clients.size() << "\n";
+    clients[clients.length() - 1]->sendTextMessage("Hello");
+    qDebug() << "Clients count: " << clients.size() << "\n";
 }
 //! [onNewConnection]
 
 //! [processTextMessage]
 void Proxy::processTextMessage(QString message) {
-    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (pClient) {
-        if (message[6] == "a" && message[7] == "u" && message[8] == "t" && message[9] == "h") {
-            cout << "auth send to server" << Qt::endl;
-            pClient->sendTextMessage("auth_ok");
-        } else if (message == "getUID") {
-            cout << "token: " + generateToken() + "\nUID: UID_client_" + QString::number(clients.size()) << Qt::endl;
-            cout << pClient->sendTextMessage("token: " + generateToken() + "\nUID: UID_client_" + QString::number(clients.size()));
-        } else if(message == "gotUID") {
-            pClient->sendTextMessage("KAL");
-        } else if(message == "KAL_OK"){
-            qDebug() << "KAL_OK";
-        }
-    }
 
-    }
+}
 //! [processTextMessage]
 
 //! [processBinaryMessage]
 void Proxy::processBinaryMessage(QByteArray message) {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
-        qDebug() << "Binary Message received:" << message;
-    if (pClient) {
-        pClient->sendBinaryMessage(message);
+    QJsonDocument doc = QJsonDocument::fromJson(QString(message).toUtf8());
+    QJsonObject json = doc.object();
+    if (json["startRequest"] == "Im main server") {
+        qDebug() << pClient->peerAddress() << pClient->peerName() << pClient->peerPort();
+        qDebug() << json["startRequest"].toString();
+        state[0] = 1;
+    } else if (json["startRequest"] == "Im client_2") {
+        qDebug() << pClient->peerAddress() << pClient->peerName() << pClient->peerPort();
+        qDebug() << json["startRequest"].toString();
+        state[1] = 1;
+    } else if (json["startRequest"] == "Im client_3") {
+        qDebug() << pClient->peerAddress() << pClient->peerName() << pClient->peerPort();
+        qDebug() << json["startRequest"].toString();
+        state[2] = 1;
+    }
+    if(state[0] == 1 && state[1] == 1 && state[2] == 1) {
+        for (QWebSocket *cli:clients) {
+            cli->sendTextMessage("Получили массированную рассылку спама");
+        }
     }
 }
 //! [processBinaryMessage]
@@ -90,8 +93,7 @@ void Proxy::onTextMessageReceived(QString message) {
 }
 
 QString Proxy::generateToken() {
-    const QString
-            possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
     const int randomStringLength = 84; // assuming you want random strings of 12 characters
     QString token;
     for (int i = 0; i < randomStringLength; ++i) {
@@ -101,5 +103,4 @@ QString Proxy::generateToken() {
     }
     return token;
 }
-
 //! [socketDisconnected]

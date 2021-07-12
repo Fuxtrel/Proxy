@@ -1,5 +1,7 @@
 #include "client.h"
 #include <QtCore/QDebug>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 QTextStream cout(stdout);
 QTextStream cin(stdin);
@@ -13,36 +15,25 @@ Client::Client(const QUrl &url) : url_(url) {
     qDebug() << url_;
     webSocket_.open(url_);
     qDebug() << webSocket_.state();
-
 }
 //! [constructor]
 
 //! [onConnected]
 void Client::onConnected() {
     qDebug() << webSocket_.state();
-    connect(&webSocket_, &QWebSocket::textMessageReceived, this, &Client::textMessageReceived);
-    webSocket_.sendTextMessage(QStringLiteral("token|auth|login|password"));
+    connect(&webSocket_, &QWebSocket::textMessageReceived, this, &Client::onTextMessageReceived);
+    QJsonObject jsonObj;
+    jsonObj["startRequest"] = "Im main server";
+    QJsonDocument doc(jsonObj);
+    QByteArray data = doc.toJson();
+    webSocket_.sendBinaryMessage(data);
 }
 //! [onConnected]
 
 //! [onTextMessageReceived]
 void Client::onTextMessageReceived(QString message) {
     cout << "Message received:" << message << Qt::endl;
-    webSocket_.close();
+    //webSocket_.close();
 }
 
-void Client::textMessageReceived(QString message) {
-    if (message == "auth_ok") {
-        cout << "auth_ok" << Qt::endl;
-        webSocket_.sendTextMessage(QStringLiteral("getUID"));
-    } else if ((message[0] == "t") && (message[1] == "o") && (message[2] == "k") && (message[3] == "e") && (message[4] == "n")) {
-        cout << message << Qt::endl;
-        webSocket_.sendTextMessage("gotUID");
-    }else if(message == "KAL"){
-        qDebug() << "KAL_OK\n";
-        webSocket_.sendTextMessage("KAL_OK");
-    }
-
-
-}
 //! [onTextMessageReceived]

@@ -9,8 +9,12 @@
 #include <QtCore/QDebug>
 #include <QTextStream>
 #include <QRandomGenerator>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <string>
 #include <cstdlib>
+#include <QFile>
+#include <vector>
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
@@ -27,20 +31,19 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void onNewConnection();
-    void processTextMessage(QString message);
-    void processBinaryMessage(QByteArray message);
-    void socketDisconnected();
-    void onTextMessageReceived(QString message);
     static QString generateToken();
-
-
+    void socketDisconnected();
+    void processBinaryMessage(QByteArray message);
+    void onTextMessageReceived(QString message);
+    void processTextMessage(QString message);
 private:
     QWebSocketServer *m_pWebSocketServer;
-    QWebSocket* m_Server;
+    QWebSocket* wsConnection;
     bool m_debug;
     QList<QWebSocket *> clients;
     QHostAddress client_peer_address;
     quint16 client_peer_port;
+    std::vector<int> state;
 };
 
 

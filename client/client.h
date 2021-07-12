@@ -21,7 +21,6 @@ private Q_SLOTS:
     void onTextMessageReceived(QString message);
     //void processTextMessage(QString message);
 
-    void textMessageReceived(QString message);
 
 private:
     QWebSocket webSocket_;

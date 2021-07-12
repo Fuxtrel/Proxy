@@ -6,7 +6,7 @@ QTextStream cin(stdin);
 QT_USE_NAMESPACE
 
 //! [constructor]
-Server::Server(quint16 port) :
+Server::Server(quint16 port, const QUrl &url) :
         m_pWebSocketServer(new QWebSocketServer(QStringLiteral("Server"),
                                                 QWebSocketServer::NonSecureMode, this)) {
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
@@ -15,6 +15,11 @@ Server::Server(quint16 port) :
                 this, &Server::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &Server::closed);
     }
+    connect(&webSocket_, &QWebSocket::connected, this, &Server::onConnected);
+    connect(&webSocket_, &QWebSocket::disconnected, this, &Server::closed);
+    qDebug() << url_;
+    webSocket_.open(url_);
+    qDebug() << webSocket_.state();
 }
 //! [constructor]
 
@@ -27,7 +32,7 @@ Server::~Server() {
 void Server::onNewConnection() {
     QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
     connect(pSocket, &QWebSocket::textMessageReceived, this, &Server::processTextMessage);
-    //connect(pSocket, &QWebSocket::binaryMessageReceived, this, &Server::processBinaryMessage);
+    connect(pSocket, &QWebSocket::binaryMessageReceived, this, &Server::processBinaryMessage);
     connect(pSocket, &QWebSocket::disconnected, this, &Server::socketDisconnected);
 
     clients << pSocket;
@@ -57,10 +62,10 @@ void Server::processTextMessage(QString message) {
 //! [processBinaryMessage]
 void Server::processBinaryMessage(QByteArray message) {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    if (m_debug)
-        qDebug() << "Binary Message received:" << message;
-    if (pClient) {
-        pClient->sendBinaryMessage(message);
+    QJsonDocument doc = QJsonDocument::fromJson(QString(message).toUtf8());
+    QJsonObject json = doc.object();
+    if(json["startRequest"] == "START to server"){
+
     }
 }
 //! [processBinaryMessage]
@@ -79,6 +84,8 @@ void Server::socketDisconnected() {
 void Server::onConnected() {
     connect(m_Server, &QWebSocket::textMessageReceived, this, &Server::textMessageReceived);
 }
+
+
 
 void Server::textMessageReceived(QString message) {
     if (message == "login_ok") {

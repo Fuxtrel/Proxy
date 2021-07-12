@@ -10,4 +10,14 @@ int main(int argc, char *argv[])
 
     Proxy proxy(quint16(4040));
     return QCoreApplication::exec();
+    /*QString val;
+    QFile file;
+    file.setFileName("../../test.json");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    val = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject json = doc.object();
+    QString str = json["hello"].toString();*/
+
 }
