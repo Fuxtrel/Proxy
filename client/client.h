@@ -4,6 +4,20 @@
 #include <QtCore/QObject>
 #include <QtWebSockets/QWebSocket>
 #include <QTextStream>
+#include <thread>
+#include <chrono>
+
+class Timer {
+public:
+    Timer();
+
+    ~Timer();
+
+    void add(std::chrono::seconds delay, std::function<void()> callback, bool asynchronous = true);
+
+private:
+
+};
 
 class Client : public QObject {
 Q_OBJECT

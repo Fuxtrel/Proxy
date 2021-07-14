@@ -24,6 +24,7 @@ void Client::onConnected() {
     connect(&webSocket_, &QWebSocket::textMessageReceived, this, &Client::onTextMessageReceived);
     QJsonObject jsonObj;
     jsonObj["startRequest"] = "Im main server";
+    jsonObj["UID"] = "a7d149a2-be2f-4435-aeef-fd7fbd4843a6";
     QJsonDocument doc(jsonObj);
     QByteArray data = doc.toJson();
     webSocket_.sendBinaryMessage(data);
@@ -37,3 +38,19 @@ void Client::onTextMessageReceived(QString message) {
 }
 
 //! [onTextMessageReceived]
+
+Timer::Timer(){}
+
+Timer::~Timer() {}
+
+void Timer::add(std::chrono::seconds delay, std::function<void()> callback, bool asynchronous) {
+    if (asynchronous) {
+        std::thread([=]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+            callback();
+        }).detach();
+    } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        callback();
+    }
+}

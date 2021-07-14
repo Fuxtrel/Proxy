@@ -15,9 +15,36 @@
 #include <cstdlib>
 #include <QFile>
 #include <vector>
+#include <ctime>
+#include <chrono>
+#include <thread>
+#include <list>
+#include <iterator>
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)
+
+using namespace std;
+
+class Timer{
+public:
+    Timer() = default;
+    ~Timer() = default;
+    void add(std::chrono::seconds delay, std::function<void ()> callback, bool asynchronous = true);
+private:
+
+};
+
+class Work_time{
+public:
+    explicit Work_time(QString UserID);
+    ~Work_time() = default;
+    long getWorkTime();
+    QString UID;
+private:
+    uint start_time;
+    uint work_time;
+};
 
 class Proxy : public QObject
 {
@@ -35,16 +62,16 @@ private Q_SLOTS:
     void socketDisconnected();
     void processBinaryMessage(QByteArray message);
     void onTextMessageReceived(QString message);
-    void processTextMessage(QString message);
+    //void processTextMessage(QString message);
 private:
     QWebSocketServer *m_pWebSocketServer;
-    QWebSocket* wsConnection;
+    QString UID;
     bool m_debug;
     QList<QWebSocket *> clients;
-    QHostAddress client_peer_address;
-    quint16 client_peer_port;
-    std::vector<int> state;
+    QList<Work_time> work_time;
 };
+
+
 
 
 #endif //PROXY_PROXY_H
