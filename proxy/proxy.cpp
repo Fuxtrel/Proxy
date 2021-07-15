@@ -5,7 +5,6 @@
 #include <utility>
 
 
-
 QT_USE_NAMESPACE
 
 //! [constructor]
@@ -58,37 +57,48 @@ void Proxy::processBinaryMessage(QByteArray message) {
     auto *pClient = qobject_cast<QWebSocket *>(sender());
     QJsonDocument doc = QJsonDocument::fromJson(QString(message).toUtf8());
     QJsonObject json = doc.object();
-    UID = json["UID"].toString();
+    UID = json["SessionID"].toString();
+    qDebug() << UID;
     Work_time wt(UID);
     work_time.push_back(wt);
     if (json["startRequest"] == "Im main server") {
         qDebug() << json["startRequest"].toString();
         pClient->setObjectName("MainServer");
-    }else {
+    } else {
         pClient->setObjectName(UID);
     }
+    QJsonObject js;
+    js["answer"] = "Abobus";
+    QJsonDocument document(js);
+    QByteArray data = doc.toJson();
+    pClient->sendBinaryMessage(data);
 }
 //! [processBinaryMessage]
 
 //! [socketDisconnected]
 void Proxy::socketDisconnected() {
     auto *pClient = qobject_cast<QWebSocket *>(sender());
-    qDebug() << pClient->objectName();
-
-    for(QList<Work_time>::iterator it = work_time.begin(); it != work_time.end(); it++){
-        if(it->UID == pClient->objectName()){
+    for (QList<Work_time>::iterator it = work_time.begin(); it != work_time.end(); it++) {
+        qDebug() << it->UID;
+        qDebug() << pClient->objectName();
+        if (it->UID == pClient->objectName()) {
+            for (QWebSocket * p_client : clients) {
+                if(p_client->objectName() == "MainServer"){
+                    p_client->sendTextMessage(to_string(it->getWorkTime()).c_str());
+                }
+            }
             work_time.erase(it);
         }
     }
-
-    qDebug() << "Время работы клиента: " << work_time[0].getWorkTime();
+    //qDebug() << "Время работы клиента: " << work_time[0].getWorkTime();
     if (m_debug)
         qDebug() << "socketDisconnected:" << pClient;
     if (pClient) {
         clients.removeAll(pClient);
         pClient->deleteLater();
     }
-    qDebug() << clients.size();
+    qDebug() << "Количество клиентов" << clients.size();
+    qDebug() << "Количество данных о клиентах" << work_time.size();
 
 }
 
@@ -107,12 +117,12 @@ QString Proxy::generateToken() {
     }
     return token;
 }
+
 //! [socketDisconnected]
-Work_time::Work_time(QString  UserID) : UID(std::move(UserID)){
+Work_time::Work_time(QString UserID) : UID(std::move(UserID)) {
     start_time = std::time(nullptr);
     work_time = 0;
 }
-
 
 long Work_time::getWorkTime() {
     work_time = std::time(nullptr) - start_time;
@@ -125,8 +135,7 @@ void Timer::add(std::chrono::seconds delay, std::function<void()> callback, bool
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
             callback();
         }).detach();
-    }
-    else {
+    } else {
         std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         callback();
     }

@@ -24,7 +24,7 @@ void Client::onConnected() {
     connect(&webSocket_, &QWebSocket::textMessageReceived, this, &Client::onTextMessageReceived);
     QJsonObject jsonObj;
     jsonObj["startRequest"] = "Im main server";
-    jsonObj["UID"] = "a7d149a2-be2f-4435-aeef-fd7fbd4843a6";
+    jsonObj["UID"] = "MainServer";
     QJsonDocument doc(jsonObj);
     QByteArray data = doc.toJson();
     webSocket_.sendBinaryMessage(data);
@@ -34,7 +34,7 @@ void Client::onConnected() {
 //! [onTextMessageReceived]
 void Client::onTextMessageReceived(QString message) {
     cout << "Message received:" << message << Qt::endl;
-    //webSocket_.close();
+    webSocket_.close();
 }
 
 //! [onTextMessageReceived]
