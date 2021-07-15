@@ -41,7 +41,7 @@ void Proxy::onNewConnection() {
     connect(pSocket, &QWebSocket::binaryMessageReceived, this, &Proxy::processBinaryMessage);
     connect(pSocket, &QWebSocket::disconnected, this, &Proxy::socketDisconnected);
     clients << pSocket;
-    clients[clients.length() - 1]->sendTextMessage("Hello");
+    //clients[clients.length() - 1]->sendTextMessage("Hello");
     qDebug() << "Clients count: " << clients.size() << "\n";
 }
 //! [onNewConnection]
